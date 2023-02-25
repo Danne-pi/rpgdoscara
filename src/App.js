@@ -1,25 +1,58 @@
-import logo from './logo.svg';
-import './App.css';
+import axios from "axios";
+import { useContext, useEffect } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import styled,  { createGlobalStyle } from "styled-components";
+import { apiURL, AuthContext } from "./components/generics";
+import HomePage from "./pages/Home";
+import RegisterPage from "./pages/Register";
 
 function App() {
+  const [user, setUser] = useContext(AuthContext)
+
+  useEffect(()=>{
+    console.log(window.location.href)
+    const URL = apiURL+"renew"
+    setInterval(() => {
+      if(user){
+        const config = {headers: { "Authorization": "Bearer "+user.token }}
+        const promise = axios.post(URL, {}, config)
+        promise.catch((a)=>{
+          const msg = a.response.data;
+          alert(msg)})
+          
+        promise.then(()=>{
+          console.log("renovado")})
+      }
+  }, 20000);
+  }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <GlobalStyle />  
+      <AppStyle>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage/>}/>
+            <Route path="/register" element={<RegisterPage/>}/>
+          </Routes>
+        </BrowserRouter>
+      </AppStyle>
+    </>
   );
 }
 
 export default App;
+
+const GlobalStyle = createGlobalStyle`
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Quicksand';
+}
+`
+
+const AppStyle = styled.div`
+  height: 100vh;
+  width: 100vw;
+`
